@@ -8,14 +8,14 @@
         body {
             margin: 0;
             display: flex;
-            justify-content: center; /* Center the columns */
+            justify-content: center;
             font-family: ITC Avant Garde Gothic Std, sans-serif;
             color: #003520;
-            letter-spacing: -0.5px; /* Slightly reduce spacing for body text */
+            letter-spacing: -0.5px;
         }
-        
+
         .canvas {
-            width: 40%; /* Adjust column width */
+            width: 40%;
             height: 100vh;
             display: flex;
             flex-direction: column;
@@ -58,19 +58,19 @@
         }
 
         h1 {
-            font-size: 4.2vw; /* Reduce size to 60% of the original 7vw */
+            font-size: 4.2vw;
             font-family: Microgramma, sans-serif;
         }
 
         .canvas.left h1 {
-            width: 80%; /* Limit h1 width to 80% of the left column */
+            width: 80%;
         }
 
         h2 {
             font-size: 5vw;
             font-family: Earth, sans-serif;
             white-space: normal;
-            text-align: right; /* Right-align the "NIX" heading */
+            text-align: right;
         }
 
         .content {
@@ -80,7 +80,6 @@
             color: #003520;
         }
 
-        /* Styling for the link list with icons */
         ul.link-list {
             list-style: none;
             padding: 0;
@@ -108,7 +107,6 @@
             text-decoration: underline;
         }
 
-        /* Media query for mobile view */
         @media (max-width: 768px) {
             .canvas {
                 width: 100%;
@@ -119,13 +117,10 @@
 <body>
     <div class="canvas left">
         <h1>SIAMESE FIGHTING FISH</h1>
-        <!-- Section to enter username -->
         <div id="username-section">
             <input type="text" id="username" class="chat-input" placeholder="Enter your username...">
             <button id="set-username" class="chat-input">Set Username</button>
         </div>
-
-        <!-- Chat section -->
         <div id="chat-section" style="display:none;">
             <div class="chat-window" id="chat-window">
                 <p><strong>Chat:</strong></p>
@@ -136,7 +131,7 @@
     </div>
     
     <div class="canvas right">
-        <h2>NIX</h2> <!-- Right-aligned "NIX" heading -->
+        <h2>NIX</h2>
         <div class="content">
             <ul class="link-list">
                 <li>
@@ -159,8 +154,10 @@
         </div>
     </div>
 
+    <script src="/socket.io/socket.io.js"></script>
     <script>
         let username = '';
+        const socket = io("https://nix-6o2o.onrender.com");
 
         document.getElementById('set-username').addEventListener('click', function() {
             const usernameInput = document.getElementById('username').value;
@@ -174,41 +171,18 @@
         document.getElementById('send-message').addEventListener('click', function() {
             const message = document.getElementById('message').value.trim();
             if (message !== '') {
-                sendMessage(username, message);
-                document.getElementById('message').value = ''; // Clear the message box
+                const data = { username, message };
+                socket.emit('chat message', data); // Send message to server
+                document.getElementById('message').value = ''; // Clear input
             }
         });
 
-        function sendMessage(username, message) {
+        // Listen for incoming chat messages
+        socket.on('chat message', (data) => {
             const chatWindow = document.getElementById('chat-window');
-            
-            // Display the message in the chat window
-            chatWindow.innerHTML += `<p><strong>${username}:</strong> ${message}</p>`;
+            chatWindow.innerHTML += `<p><strong>${data.username}:</strong> ${data.message}</p>`;
             chatWindow.scrollTop = chatWindow.scrollHeight; // Auto-scroll to the bottom
-
-            // Placeholder for actual server interaction (to be added later)
-            // Example: Using fetch API to send data to the backend server
-        }
+        });
     </script>
-<script src="/socket.io/socket.io.js"></script>
-<script>
-    const socket = io("https://nix-6o2o.onrender.com");
-
-    document.getElementById('send-message').addEventListener('click', function() {
-        const message = document.getElementById('message').value.trim();
-        if (message !== '') {
-            const data = { username, message };
-            socket.emit('chat message', data); // Send message to server
-            document.getElementById('message').value = ''; // Clear input
-        }
-    });
-
-    // Listen for incoming chat messages
-    socket.on('chat message', (data) => {
-        const chatWindow = document.getElementById('chat-window');
-        chatWindow.innerHTML += `<p><strong>${data.username}:</strong> ${data.message}</p>`;
-        chatWindow.scrollTop = chatWindow.scrollHeight; // Auto-scroll to the bottom
-    });
-</script>
 </body>
 </html>
